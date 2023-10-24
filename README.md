@@ -28,12 +28,11 @@ The repository follows the following file structure:
 
 ```css
 stock_advisor/
-    ├── data/
-    │   ├── historical_data.csv
     ├── indicators/
     │   ├── moving_averages.py
     ├── strategy/
     │   ├── stock_strategy.py
+    ├── requirements.txt
     ├── main.py
 ```
 
