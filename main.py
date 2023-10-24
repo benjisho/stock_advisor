@@ -36,6 +36,7 @@ def get_historical_data(symbol):
 
 # Ask the user for a stock symbol
 user_symbol = input("Enter the stock symbol (e.g., AAPL): ").upper()
+print("----------------------------------------------------------------")
 
 # Fetch historical data for the user-provided symbol
 data = get_historical_data(user_symbol)
@@ -46,3 +47,4 @@ if data is not None:
 
     # Output the recommendation
     print(f"Recommendation for {user_symbol}: {action} for the next week")
+    print("----------------------------------------------------------------")
