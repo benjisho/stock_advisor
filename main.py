@@ -1,6 +1,10 @@
 import pandas as pd
 from strategy.stock_strategy import recommend_action
 import requests
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import numpy as np
 
 # Function to fetch historical stock price data based on the user's input
 def get_historical_data(symbol):
@@ -42,9 +46,48 @@ print("----------------------------------------------------------------")
 data = get_historical_data(user_symbol)
 
 if data is not None:
-    # Calculate the recommendation
-    action = recommend_action(data)
+    # Prepare the data for machine learning
+    data['Date_Num'] = (data['Date'] - data['Date'].min()).dt.days  # Convert date to numerical format
+    X = data[['Date_Num']].values
+    y = data['Close'].values
+    
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Train a Linear Regression model
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    
+    # Predict stock prices for tomorrow, next week, and next month
+    tomorrow_date = data['Date_Num'].max() + 1
+    next_week_date = data['Date_Num'].max() + 7
+    next_month_date = data['Date_Num'].max() + 30
+    
+    price_tomorrow = round(model.predict(np.array([[tomorrow_date]]))[0], 2)
+    price_next_week = round(model.predict(np.array([[next_week_date]]))[0], 2)
+    price_next_month = round(model.predict(np.array([[next_month_date]]))[0], 2)
+    
+    # Calculate the recommendation for tomorrow, next week, and next month
+    action_tomorrow = recommend_action(data, price_tomorrow)
+    action_week = recommend_action(data, price_next_week)
+    action_next_month = recommend_action(data, price_next_month)
+    
+    import time
 
-    # Output the recommendation
-    print(f"Recommendation for {user_symbol}: {action} for the next week")
+    time.sleep(1)
+
+    # Output the recommendations
+    print(f"Price prediction for tomorrow: {price_tomorrow}")
+    print(f"Recommendation for {user_symbol} for tomorrow: {action_tomorrow}")
     print("----------------------------------------------------------------")
+    time.sleep(1)
+
+    print(f"Price prediction for next week: {price_next_week}")
+    print(f"Recommendation for {user_symbol} for the next week: {action_week}")
+    print("----------------------------------------------------------------")
+    time.sleep(1)
+
+    print(f"Price prediction for next month: {price_next_month}")
+    print(f"Recommendation for {user_symbol} for the next month: {action_next_month}")
+    print("----------------------------------------------------------------")
+    time.sleep(1)
