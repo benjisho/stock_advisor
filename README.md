@@ -36,10 +36,12 @@ stock_advisor/
     ├── main.py
 ```
 
-`data`: Stores historical stock price data.
 `indicators`: Contains code for technical indicators.
+
 `strategy`: Includes the main stock strategy logic.
+
 `main.py`: The entry point of the program.
+
 ## Contributng
 Contributions to improve and extend this simple stock advisor project are welcome. If you have ideas, bug fixes, or improvements, feel free to submit a pull request.
 
