@@ -4,6 +4,20 @@ This is a simple stock advisor program that provides buy or short recommendation
 It is intended for educational purposes and serves as an example of how to apply technical analysis to stock trading.
 Please note that this program does not guarantee any financial success, and you should exercise caution and seek professional financial advice when making real investment decisions.
 
+# Table of Contents
+- [Getting Started](#getting-started)
+    - [Clone repository to your local machine](#1-clone-repository-to-your-local-machine)
+    - [Ensure you have Python installed on your system](#2-ensure-you-have-python-installed-on-your-system)
+    - [Install the required Python packages](#3-install-the-required-python-packages)
+        - [Option 1 - install on the host machine](#option-1---install-on-the-host-machine)
+        - [Option 2 - Create a virtual environment](#option-2---create-a-virtual-environment)
+    - [Customize the technical indicators and strategy](#4-customize-the-technical-indicators-and-strategy)
+    - [Run your Python program](#5-run-your-python-program)
+- [File Structure](#file-structure)
+- [Contributing](#contributing)
+- [Disclaimer](#disclaimer)
+- [License](#license)
+
 ## Getting Started
 To get started with the QYLD Stock Advisor, follow these steps:
 
