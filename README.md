@@ -7,26 +7,54 @@ Please note that this program does not guarantee any financial success, and you 
 ## Getting Started
 To get started with the QYLD Stock Advisor, follow these steps:
 
-1. Clone this repository to your local machine.
-```
+### 1. Clone repository to your local machine
+```bash
 git clone https://github.com/benjisho/stock_advisor.git
 ```
-2. Ensure you have Python installed on your system.
-```
+### 2. Ensure you have Python installed on your system
+```bash
 python --version
 ```
 If Python is not installed, you can download and install it from the official Python website (https://www.python.org/downloads/).
 
-3. Install the required Python packages by running the following command:
-
+### 3. Install the required Python packages:
+#### Option 1 - install on the host machine
 ```bash
-pip install -r requirements.txt
+apt install python3-pandas
+apt install python3-requests
+apt install python3-numpy
 ```
-This will install the necessary packages specified in the requirements.txt file.
+#### Option 2 - Create a virtual environment
+1. Create a virtual environment (if you haven't already):
+```bash
+python3 -m venv venv
+```
+This command will create a virtual environment named venv in your project directory.
+
+2. Activate the virtual environment:
+
+On Linux or macOS:
+```bash
+source venv/bin/activate
+```
+On Windows (in Command Prompt):
+```bash
+venv\Scripts\activate
+```
+3. Once your virtual environment is activated, you can install the required packages using pip:
+```bash
+pip3 install -r requirements.txt
+```
+This will install the necessary packages in your virtual environment.
 
 4. Customize the technical indicators and strategy in the indicators and strategy directories as per your requirements.
+`strategy/stock_strategy.py` and `indicators/moving_averages.py`
 
-5. Run the main program by executing main.py to generate buy or short recommendations based on your strategy.
+5. Run your Python program within the virtual environment:
+```bash
+python3 main.py
+```
+This will install the necessary packages specified in the requirements.txt file.
 
 ## File Structure
 The repository follows the following file structure:
