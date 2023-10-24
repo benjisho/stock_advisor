@@ -8,20 +8,25 @@ Please note that this program does not guarantee any financial success, and you 
 To get started with the QYLD Stock Advisor, follow these steps:
 
 1. Clone this repository to your local machine.
-
+```
+git clone https://github.com/benjisho/stock_advisor.git
+```
 2. Ensure you have Python installed on your system.
+```
+python --version
+```
+If Python is not installed, you can download and install it from the official Python website (https://www.python.org/downloads/).
 
 3. Install the required Python packages by running the following command:
 
 ```bash
 pip install -r requirements.txt
 ```
-4. Obtain historical stock price data for "AAPL" for example or your preferred stock and save it as a CSV file in the data directory.
-You can use various data sources and APIs to obtain this data.
+This will install the necessary packages specified in the requirements.txt file.
 
-5. Customize the technical indicators and strategy in the indicators and strategy directories as per your requirements.
+4. Customize the technical indicators and strategy in the indicators and strategy directories as per your requirements.
 
-6. Run the main program by executing main.py to generate buy or short recommendations based on your strategy.
+5. Run the main program by executing main.py to generate buy or short recommendations based on your strategy.
 
 ## File Structure
 The repository follows the following file structure:
