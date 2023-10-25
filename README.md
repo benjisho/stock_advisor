@@ -31,14 +31,7 @@ python --version
 ```
 If Python is not installed, you can download and install it from the official Python website (https://www.python.org/downloads/).
 
-### 3. Install the required Python packages:
-#### Option 1 - install on the host machine
-```bash
-apt install python3-pandas
-apt install python3-requests
-apt install python3-numpy
-```
-#### Option 2 - Create a virtual environment
+### 3. Install the required Python packages - Create a virtual environment
 1. Create a virtual environment (if you haven't already):
 ```bash
 python3 -m venv venv
