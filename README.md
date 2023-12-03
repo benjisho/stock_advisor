@@ -5,33 +5,54 @@ It is intended for educational purposes and serves as an example of how to apply
 Please note that this program does not guarantee any financial success, and you should exercise caution and seek professional financial advice when making real investment decisions.
 
 # Table of Contents
-- [Getting Started](#getting-started)
-    - [Clone repository to your local machine](#1-clone-repository-to-your-local-machine)
-    - [Ensure you have Python installed on your system](#2-ensure-you-have-python-installed-on-your-system)
-    - [Install the required Python packages](#3-install-the-required-python-packages)
-        - [Option 1 - install on the host machine](#option-1---install-on-the-host-machine)
-        - [Option 2 - Create a virtual environment](#option-2---create-a-virtual-environment)
-    - [Customize the technical indicators and strategy](#4-customize-the-technical-indicators-and-strategy)
-    - [Run your Python program](#5-run-your-python-program)
-- [File Structure](#file-structure)
-- [Contributing](#contributing)
-- [Disclaimer](#disclaimer)
-- [License](#license)
+1. [Getting Started](#getting-started)
+   1. [Running using Docker](#running-using-docker)
+      1. [Clone repository to your local machine](#1-clone-repository-to-your-local-machine)
+      2. [Build the Docker image](#build-the-docker-image)
+      3. [Run the Docker container](#run-the-docker-container)
+   2. [Running Manually](#running-manually)
+      1. [Clone repository to your local machine](#1-clone-repository-to-your-local-machine-1)
+      2. [Ensure you have Python installed on your system](#2-ensure-you-have-python-installed-on-your-system)
+      3. [Install the required Python packages - Create a virtual environment](#3-install-the-required-python-packages---create-a-virtual-environment)
+2. [File Structure](#file-structure)
+3. [Contributing](#contributing)
+4. [Disclaimer](#disclaimer)
+5. [License](#license)
 
 ## Getting Started
-To get started with the QYLD Stock Advisor, follow these steps:
+To get started with the Stock Advisor, follow these steps:
 
-### 1. Clone repository to your local machine
+### Running using Docker
+
+#### 1. Clone repository to your local machine
 ```bash
 git clone https://github.com/benjisho/stock_advisor.git
 ```
-### 2. Ensure you have Python installed on your system
+
+#### Build the Dockerimage:
+
+```bash
+docker build -t stock_advisor .
+```
+
+#### Run the Docker container
+```bash
+docker run -it --rm --name my_stock_advisor_app stock_advisor
+```
+
+### Running Manually
+#### 1. Clone repository to your local machine
+```bash
+git clone https://github.com/benjisho/stock_advisor.git
+```
+
+#### 2. Ensure you have Python installed on your system
 ```bash
 python --version
 ```
 If Python is not installed, you can download and install it from the official Python website (https://www.python.org/downloads/).
 
-### 3. Install the required Python packages - Create a virtual environment
+#### 3. Install the required Python packages - Create a virtual environment
 1. Create a virtual environment (if you haven't already):
 ```bash
 python3 -m venv venv
@@ -72,8 +93,11 @@ stock_advisor/
     │   ├── moving_averages.py
     ├── strategy/
     │   ├── stock_strategy.py
+    ├── .dockerignore
+    ├── Dockerfile
     ├── requirements.txt
     ├── main.py
+
 ```
 
 `indicators`: Contains code for technical indicators.
