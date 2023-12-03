@@ -34,3 +34,10 @@ def stochastic_rsi(data, window, window_slow=3):
     rsi = relative_strength_index(data, window)
     k_rsi, d_rsi = stochastic_oscillator(pd.DataFrame({'Close': rsi}), window, window_slow)
     return k_rsi, d_rsi
+
+def macd(data, span_fast, span_slow, span_signal):
+    ema_fast = exponential_moving_average(data, span_fast)
+    ema_slow = exponential_moving_average(data, span_slow)
+    macd = ema_fast - ema_slow
+    signal = exponential_moving_average(pd.DataFrame({'Close': macd}), span_signal)
+    return macd, signal

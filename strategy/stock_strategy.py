@@ -1,6 +1,6 @@
 # strategy/stock_strategy.py
 import pandas as pd
-from indicators.moving_averages import simple_moving_average, exponential_moving_average
+from indicators.moving_averages import simple_moving_average, exponential_moving_average, macd
 
 def recommend_action(data, predicted_price):
     # Calculate moving averages
@@ -9,11 +9,17 @@ def recommend_action(data, predicted_price):
     data['EMA_12'] = exponential_moving_average(data, span=12)
     data['EMA_26'] = exponential_moving_average(data, span=26)
 
+    # Calculate MACD and its signal line
+    data['MACD'], data['MACD_Signal'] = macd(data, span_fast=12, span_slow=26, span_signal=9)
+
     # Convert last closing price to float
     last_closing_price = float(data['Close'].iloc[-1])
 
     # Comparison
-    if predicted_price > last_closing_price and data['SMA_20'].iloc[-1] > data['SMA_50'].iloc[-1] and data['EMA_12'].iloc[-1] > data['EMA_26'].iloc[-1]:
+    if (predicted_price > last_closing_price and 
+        data['SMA_20'].iloc[-1] > data['SMA_50'].iloc[-1] and 
+        data['EMA_12'].iloc[-1] > data['EMA_26'].iloc[-1] and 
+        data['MACD'].iloc[-1] > data['MACD_Signal'].iloc[-1]):
         return "Buy"
     else:
         return "Short"
