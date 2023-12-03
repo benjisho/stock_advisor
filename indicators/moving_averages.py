@@ -43,15 +43,23 @@ def macd(data, span_fast, span_slow, span_signal):
     return macd, signal
 
 def on_balance_volume(data):
+    # Ensure 'Volume' is treated as numeric
+    data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
+
     prev_obv = 0
     obv_values = []
-    for close, volume in zip(data['Close'], data['Volume']):
-        if close > data['Close'].shift(1):
-            current_obv = prev_obv + volume
-        elif close < data['Close'].shift(1):
-            current_obv = prev_obv - volume
+    close_prices = data['Close']
+    volumes = data['Volume']
+    for i in range(len(close_prices)):
+        if i == 0:
+            current_obv = volumes.iloc[i]
         else:
-            current_obv = prev_obv
+            if close_prices.iloc[i] > close_prices.iloc[i - 1]:
+                current_obv = prev_obv + volumes.iloc[i]
+            elif close_prices.iloc[i] < close_prices.iloc[i - 1]:
+                current_obv = prev_obv - volumes.iloc[i]
+            else:
+                current_obv = prev_obv
         obv_values.append(current_obv)
         prev_obv = current_obv
     return pd.Series(obv_values)
