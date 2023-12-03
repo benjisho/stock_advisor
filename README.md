@@ -23,21 +23,29 @@ Please note that this program does not guarantee any financial success, and you 
 To get started with the Stock Advisor, follow these steps:
 
 ### Running using Docker
+You can easily run the stock_advisor application using the Docker image hosted on Docker Hub.
 
 #### 1. Clone repository to your local machine
 ```bash
 git clone https://github.com/benjisho/stock_advisor.git
 ```
 
-#### Build the Dockerimage:
+#### Get the Docker Image
+##### Option 1 - Pull the image from DockerHub
+To pull the image from Docker Hub, use the following command:
+```bash
+docker pull benjisho/stock_advisor
+
+```
+##### Option 2 - Build the Dockerimage:
 
 ```bash
-docker build -t stock_advisor .
+docker build -t benjisho/stock_advisor .
 ```
 
-#### Run the Docker container
+#### 2. Run the Docker container
 ```bash
-docker run -it --rm --name my_stock_advisor_app stock_advisor
+docker run -it --rm --name my_stock_advisor_app benjisho/stock_advisor
 ```
 
 ### Running Manually
