@@ -5,19 +5,21 @@ It is intended for educational purposes and serves as an example of how to apply
 Please note that this program does not guarantee any financial success, and you should exercise caution and seek professional financial advice when making real investment decisions.
 
 # Table of Contents
-1. [Getting Started](#getting-started)
-   1. [Running using Docker](#running-using-docker)
-      1. [Clone repository to your local machine](#1-clone-repository-to-your-local-machine)
-      2. [Build the Docker image](#build-the-docker-image)
-      3. [Run the Docker container](#run-the-docker-container)
-   2. [Running Manually](#running-manually)
-      1. [Clone repository to your local machine](#1-clone-repository-to-your-local-machine-1)
-      2. [Ensure you have Python installed on your system](#2-ensure-you-have-python-installed-on-your-system)
-      3. [Install the required Python packages - Create a virtual environment](#3-install-the-required-python-packages---create-a-virtual-environment)
-2. [File Structure](#file-structure)
-3. [Contributing](#contributing)
-4. [Disclaimer](#disclaimer)
-5. [License](#license)
+- [Getting Started](#getting-started)
+  * [Running using Docker](#running-using-docker)
+    + [Clone repository to your local machine](#clone-repository-to-your-local-machine)
+    + [Get the Docker Image](#get-the-docker-image)
+      - [Option 1 - Pull the image from DockerHub](#option-1---pull-the-image-from-dockerhub)
+      - [Option 2 - Build the Dockerimage](#option-2---build-the-dockerimage)
+    + [Run the Docker container](#run-the-docker-container)
+  * [Running Manually](#running-manually)
+    + [Clone repository to your local machine](#clone-repository-to-your-local-machine-1)
+    + [Ensure you have Python installed on your system](#ensure-you-have-python-installed-on-your-system)
+    + [Install the required Python packages - Create a virtual environment](#install-the-required-python-packages---create-a-virtual-environment)
+  * [File Structure](#file-structure)
+  * [Contributing](#contributing)
+  * [Disclaimer](#disclaimer)
+  * [License](#license)
 
 ## Getting Started
 To get started with the Stock Advisor, follow these steps:
