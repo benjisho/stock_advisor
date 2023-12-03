@@ -41,3 +41,17 @@ def macd(data, span_fast, span_slow, span_signal):
     macd = ema_fast - ema_slow
     signal = exponential_moving_average(pd.DataFrame({'Close': macd}), span_signal)
     return macd, signal
+
+def on_balance_volume(data):
+    prev_obv = 0
+    obv_values = []
+    for close, volume in zip(data['Close'], data['Volume']):
+        if close > data['Close'].shift(1):
+            current_obv = prev_obv + volume
+        elif close < data['Close'].shift(1):
+            current_obv = prev_obv - volume
+        else:
+            current_obv = prev_obv
+        obv_values.append(current_obv)
+        prev_obv = current_obv
+    return pd.Series(obv_values)
