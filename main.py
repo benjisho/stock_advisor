@@ -1,8 +1,5 @@
 import pandas as pd
-from strategy.stock_strategy import recommend_action
 import requests
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
@@ -51,9 +48,13 @@ if data is not None:
     X = data[['Date_Num']].values
     y = data['Close'].values
     
+    from sklearn.model_selection import train_test_split
+
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
+    from sklearn.linear_model import LinearRegression
+
     # Train a Linear Regression model
     model = LinearRegression()
     model.fit(X_train, y_train)
@@ -67,6 +68,8 @@ if data is not None:
     price_next_week = round(model.predict(np.array([[next_week_date]]))[0], 2)
     price_next_month = round(model.predict(np.array([[next_month_date]]))[0], 2)
     
+    from strategy.stock_strategy import recommend_action
+
     # Calculate the recommendation for tomorrow, next week, and next month
     action_tomorrow = recommend_action(data, price_tomorrow)
     action_week = recommend_action(data, price_next_week)
