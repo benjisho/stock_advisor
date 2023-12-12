@@ -8,6 +8,8 @@ import yfinance as yf
 
 def get_historical_data(symbol):
     try:
+        print(f"Fetching historical data for {symbol}...")
+        print("----------------------------------------------------------------")
         stock = yf.Ticker(symbol)
         # data including 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'
         
@@ -19,6 +21,7 @@ def get_historical_data(symbol):
             return None
         else:
             print(f"Successfully fetched historical data for {symbol}")
+            print("----------------------------------------------------------------")
             data.reset_index(inplace=True)  # Reset the index to make 'Date' a column
             return data
     except Exception as e:
@@ -54,13 +57,10 @@ if data is not None:
     next_week_date = data['Date_Num'].max() + 7
     next_month_date = data['Date_Num'].max() + 30
     
-    tomorrow_date = datetime.today() + timedelta(days=1)
-    next_week_date = datetime.today() + timedelta(days=7)
-    next_month_date = datetime.today() + timedelta(days=30)
-
     price_tomorrow = round(model.predict(np.array([[tomorrow_date]]))[0], 2)
     price_next_week = round(model.predict(np.array([[next_week_date]]))[0], 2)
-    price_next_month = round(model.predict(np.array([[next_month_date]]))[0], 2)    
+    price_next_month = round(model.predict(np.array([[next_month_date]]))[0], 2)
+    
     from strategy.stock_strategy import recommend_action
 
     # Calculate the recommendation for tomorrow, next week, and next month
@@ -72,17 +72,19 @@ if data is not None:
 
     time.sleep(1)
 
-    # Output the recommendations
+    # Output the recommendations for tomorrow
     print(f"Price prediction for tomorrow: {price_tomorrow}")
     print(f"Recommendation for {user_symbol} for tomorrow: {action_tomorrow}")
     print("----------------------------------------------------------------")
     time.sleep(1)
 
+    # Output the recommendations for next week
     print(f"Price prediction for next week: {price_next_week}")
     print(f"Recommendation for {user_symbol} for the next week: {action_week}")
     print("----------------------------------------------------------------")
     time.sleep(1)
 
+    # Output the recommendations for next month
     print(f"Price prediction for next month: {price_next_month}")
     print(f"Recommendation for {user_symbol} for the next month: {action_next_month}")
     print("----------------------------------------------------------------")
