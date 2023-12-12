@@ -63,3 +63,12 @@ def on_balance_volume(data):
         obv_values.append(current_obv)
         prev_obv = current_obv
     return pd.Series(obv_values)
+
+def average_true_range(data, window):
+    high_low = data['High'] - data['Low']
+    high_close = abs(data['High'] - data['Close'].shift())
+    low_close = abs(data['Low'] - data['Close'].shift())
+    ranges = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = ranges.max(axis=1)
+    atr = true_range.rolling(window=window).mean()
+    return atr
