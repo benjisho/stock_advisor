@@ -22,6 +22,8 @@ Please note that this program does not guarantee any financial success, and you 
   * [License](#license)
 
 ## Getting Started
+![image](https://github.com/benjisho/stock_advisor/assets/97973081/4f1d60b4-2618-4274-9810-94ebce355c68)
+
 To get started with the Stock Advisor, follow these steps:
 
 ### Running using Docker
