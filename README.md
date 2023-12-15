@@ -4,6 +4,8 @@ This is a simple stock advisor program that provides buy or short recommendation
 It is intended for educational purposes and serves as an example of how to apply technical analysis to stock trading.
 Please note that this program does not guarantee any financial success, and you should exercise caution and seek professional financial advice when making real investment decisions.
 
+![image](https://github.com/benjisho/stock_advisor/assets/97973081/4f1d60b4-2618-4274-9810-94ebce355c68)
+
 # Table of Contents
 - [Getting Started](#getting-started)
   * [Running using Docker](#running-using-docker)
@@ -22,8 +24,6 @@ Please note that this program does not guarantee any financial success, and you 
   * [License](#license)
 
 ## Getting Started
-![image](https://github.com/benjisho/stock_advisor/assets/97973081/4f1d60b4-2618-4274-9810-94ebce355c68)
-
 To get started with the Stock Advisor, follow these steps:
 
 ### Running using Docker
