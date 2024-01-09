@@ -3,7 +3,12 @@ name: Publish Docker image
 on:
   push:
     branches: [ main ]
-
+    paths-ignore:
+      - 'docker-compose.yml'
+      - 'README.md'
+      - 'LICENSE'
+      - '.dockerignore'
+      - '.gitignore'
 env:
   DOCKER_IMAGE: stock_advisor
   DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
