@@ -52,6 +52,19 @@ docker build -t benjisho/stock_advisor .
 docker run -it --rm --name my_stock_advisor_app benjisho/stock_advisor
 ```
 
+Certainly! Here's a concise addition for your README to explain how to use the `docker-compose run --rm -it stock_advisor` command:
+
+---
+
+### Running with Docker Compose
+
+To run the `stock_advisor` application using Docker Compose and automatically remove the container after it exits, use the following command:
+
+```bash
+docker-compose run --rm -it stock_advisor
+```
+
+This command runs the application in an interactive mode and cleans up the container after the application finishes.
 ### Running Manually
 #### 1. Clone repository to your local machine
 ```bash

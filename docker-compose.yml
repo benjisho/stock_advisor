@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  stock_advisor:
+    image: benjisho/stock_advisor:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    stdin_open: true  # Keep stdin open
+    tty: true         # Allocate a pseudo-TTY
+    command: python main.py
