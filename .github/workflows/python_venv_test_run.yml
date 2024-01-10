@@ -1,0 +1,33 @@
+name: Python venv Test Run
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python Environment
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip3 install -r requirements.txt
+
+    - name: Run Python Script with Expect
+      run: |
+        expect -c "
+          set timeout 600
+          spawn python3 main.py
+          expect \"Enter the stock symbol (e.g., AAPL):\"
+          send \"AAPL\r\"
+          expect \"Successfully fetched\"
+        "
+      timeout-minutes: 10

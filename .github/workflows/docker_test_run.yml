@@ -1,0 +1,39 @@
+name: Docker Test Run
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Expect
+      run: sudo apt-get install -y expect
+      
+    - name: Pull Docker Image
+      run: docker pull benjisho/stock_advisor
+
+    - name: Run Docker Container with Expect
+      run: |
+        expect -c "
+          set timeout 600
+          spawn docker run -i --rm --name my_stock_advisor_app benjisho/stock_advisor
+          expect \"Enter the stock symbol (e.g., AAPL):\"
+          send \"AAPL\r\"
+          expect \"Successfully fetched\"
+        "
+
+    - name: Stop and Remove Docker Container
+      run: |
+        docker stop my_stock_advisor_app
+        docker rm my_stock_advisor_app
+
+    - name: Remove Docker Image
+      run: docker image rm benjisho/stock_advisor
+
+    timeout-minutes: 10
