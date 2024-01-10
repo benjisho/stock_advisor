@@ -30,4 +30,8 @@ jobs:
           send \"AAPL\r\"
           expect \"Successfully fetched\"
         "
+
+    - name: Deactivate Python Environment and Clear venv Directory
+      run: deactivate && python3 -m venv --clear venv
+
       timeout-minutes: 10
