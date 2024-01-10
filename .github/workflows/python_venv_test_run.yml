@@ -5,15 +5,15 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  python_venv_test:
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - name: Install Expect
+      run: sudo apt-get update && sudo apt-get install -y expect
 
     - name: Set up Python Environment
       run: |
@@ -30,4 +30,11 @@ jobs:
           send \"AAPL\r\"
           expect \"Successfully fetched\"
         "
+
+    - name: Deactivate Python Environment and Clear venv Directory
+      run: |
+        source venv/bin/activate
+        deactivate
+        python3 -m venv --clear venv
+
       timeout-minutes: 10

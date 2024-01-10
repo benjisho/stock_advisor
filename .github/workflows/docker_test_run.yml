@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  docker_interaction_test:
     runs-on: ubuntu-latest
     steps:
 
@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install Expect
-      run: sudo apt-get install -y expect
+      run: sudo apt-get update && sudo apt-get install -y expect
       
     - name: Pull Docker Image
       run: docker pull benjisho/stock_advisor
@@ -27,11 +27,6 @@ jobs:
           send \"AAPL\r\"
           expect \"Successfully fetched\"
         "
-
-    - name: Stop and Remove Docker Container
-      run: |
-        docker stop my_stock_advisor_app
-        docker rm my_stock_advisor_app
 
     - name: Remove Docker Image
       run: docker image rm benjisho/stock_advisor

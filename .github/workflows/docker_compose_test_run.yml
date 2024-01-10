@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  docker_compose_interaction_test:
     runs-on: ubuntu-latest
     steps:
 
@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install Expect
-      run: sudo apt-get install -y expect
+      run: sudo apt-get update && sudo apt-get install -y expect
 
     - name: Pull Docker Image
       run: docker pull benjisho/stock_advisor
@@ -22,13 +22,13 @@ jobs:
       run: |
         expect -c "
           set timeout 600
-          spawn docker-compose run --rm -i stock_advisor
+          spawn docker-compose run --rm stock_advisor
           expect \"Enter the stock symbol (e.g., AAPL):\"
           send \"AAPL\r\"
           expect \"Successfully fetched\"
         "
 
-    - name: Stop and Remove Docker Containers
+    - name: Stop and Remove Docker Containers (Just in case)
       run: docker-compose down
 
     - name: Remove Docker Image
