@@ -28,11 +28,6 @@ jobs:
           expect \"Successfully fetched\"
         "
 
-    - name: Stop and Remove Docker Container
-      run: |
-        docker stop my_stock_advisor_app
-        docker rm my_stock_advisor_app
-
     - name: Remove Docker Image
       run: docker image rm benjisho/stock_advisor
 
