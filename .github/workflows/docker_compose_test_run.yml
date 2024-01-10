@@ -22,7 +22,7 @@ jobs:
       run: |
         expect -c "
           set timeout 600
-          spawn docker-compose run --rm -i stock_advisor
+          spawn docker-compose run --rm stock_advisor
           expect \"Enter the stock symbol (e.g., AAPL):\"
           send \"AAPL\r\"
           expect \"Successfully fetched\"
