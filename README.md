@@ -34,7 +34,7 @@ You can easily run the stock_advisor application using the Docker image hosted o
 git clone https://github.com/benjisho/stock_advisor.git
 ```
 
-#### Get the Docker Image
+#### 2. Get the Docker Image
 ##### Option 1 - Pull the image from DockerHub
 To pull the image from Docker Hub, use the following command:
 ```bash
@@ -47,7 +47,7 @@ docker pull benjisho/stock_advisor
 docker build -t benjisho/stock_advisor .
 ```
 
-#### 2. Run the Docker container
+#### 3. Run the Docker container
 ```bash
 docker run -it --rm --name my_stock_advisor_app benjisho/stock_advisor
 ```
@@ -58,10 +58,16 @@ Certainly! Here's a concise addition for your README to explain how to use the `
 
 ### Running with Docker Compose
 
-To run the `stock_advisor` application using Docker Compose and automatically remove the container after it exits, use the following command:
+1. Pull the image from Docker Hub, use the following command:
+```bash
+docker pull benjisho/stock_advisor
+
+```
+
+2. Run the `stock_advisor` application using Docker Compose and automatically remove the container after it exits, use the following command:
 
 ```bash
-docker-compose run --rm -it stock_advisor
+docker-compose run --rm stock_advisor
 ```
 
 This command runs the application in an interactive mode and cleans up the container after the application finishes.
