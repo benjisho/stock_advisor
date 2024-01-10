@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  python_venv_test:
     runs-on: ubuntu-latest
     steps:
 
