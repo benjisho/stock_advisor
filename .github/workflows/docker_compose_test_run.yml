@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  docker_compose_interaction_test:
     runs-on: ubuntu-latest
     steps:
 
