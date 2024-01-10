@@ -89,3 +89,4 @@ if data is not None:
     print(f"Recommendation for {user_symbol} for the next month: {action_next_month}")
     print("----------------------------------------------------------------")
     time.sleep(1)
+
