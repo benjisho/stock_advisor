@@ -28,7 +28,7 @@ jobs:
           expect \"Successfully fetched\"
         "
 
-    - name: Stop and Remove Docker Containers
+    - name: Stop and Remove Docker Containers (Just in case)
       run: docker-compose down
 
     - name: Remove Docker Image
