@@ -22,14 +22,14 @@ jobs:
       run: |
         expect -c "
           set timeout 600
-          spawn docker-compose run --rm stock_advisor
+          spawn docker compose run --rm stock_advisor
           expect \"Enter the stock symbol (e.g., AAPL):\"
           send \"AAPL\r\"
           expect \"Successfully fetched\"
         "
 
     - name: Stop and Remove Docker Containers (Just in case)
-      run: docker-compose down
+      run: docker compose down
 
     - name: Remove Docker Image
       run: docker rmi benjisho/stock_advisor
