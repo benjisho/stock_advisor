@@ -26,8 +26,7 @@ def recommend_action(data, predicted_price):
         data['SMA_20'].iloc[-1] > data['SMA_50'].iloc[-1] and
         data['EMA_12'].iloc[-1] > data['EMA_26'].iloc[-1] and
         data['MACD'].iloc[-1] > data['MACD_Signal'].iloc[-1] and
-        data['OBV'].iloc[-1] > data['OBV'].iloc[-2] and
-        data['ATR'].iloc[-1] > data['ATR'].iloc[-2]):
+        is_obv_and_atr_positive(data)):
         return "Buy"
     else:
         return "Short"
