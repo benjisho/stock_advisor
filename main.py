@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 from sklearn.metrics import mean_squared_error
 import numpy as np
+from datetime import date
 
 # Fetch historical stock price data based on the user's input
 import yfinance as yf
@@ -47,7 +48,37 @@ def get_historical_data(symbol):
             data = process_data(data)
             return data, data_source
     except Exception as e:
-        print(f"Stooq retrieval failed: {e}")
+        print(f"Stooq retrieval failed: {e}. Trying FinanceDataReader...")
+
+    # Attempt FinanceDataReader
+    try:
+        import FinanceDataReader as fdr
+        data = fdr.DataReader(symbol, '2000')
+        if not data.empty:
+            data_source = "FinanceDataReader"
+            data = data.reset_index().rename(columns={'index': 'Date'})
+            print(f"Successfully fetched historical data for {symbol} from {data_source}")
+            print("----------------------------------------------------------------")
+            data = process_data(data)
+            return data, data_source
+    except Exception as e:
+        print(f"FinanceDataReader retrieval failed: {e}. Trying InvestPy...")
+
+    # Attempt InvestPy
+    try:
+        import investpy
+        start_date = '01/01/2000'
+        end_date = date.today().strftime('%d/%m/%Y')
+        data = investpy.get_stock_historical_data(stock=symbol, country='united states', from_date=start_date, to_date=end_date)
+        if not data.empty:
+            data_source = "InvestPy"
+            data = data.reset_index().rename(columns={'index': 'Date'})
+            print(f"Successfully fetched historical data for {symbol} from {data_source}")
+            print("----------------------------------------------------------------")
+            data = process_data(data)
+            return data, data_source
+    except Exception as e:
+        print(f"InvestPy retrieval failed: {e}")
 
     print(f"Historical data for {symbol} not found.")
     return None, data_source
