@@ -106,6 +106,14 @@ pip3 install -r requirements.txt
 ```
 This will install the necessary packages in your virtual environment.
 
+The application fetches historical prices using `yfinance` and will
+automatically fall back to `pandas_datareader` with the **stooq** source if
+Yahoo Finance is unavailable.
+The program prints the current price along with the name of the data source so
+you know where the prices came from.
+The historical data is sorted by date so the latest close reflects the most
+recent trading day even when using Stooq.
+
 4. Customize the technical indicators and strategy in the indicators and strategy directories as per your requirements.
 `strategy/stock_strategy.py` and `indicators/moving_averages.py`
 
