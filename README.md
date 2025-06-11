@@ -51,9 +51,6 @@ docker build -t benjisho/stock_advisor .
 ```bash
 docker run -it --rm --name my_stock_advisor_app benjisho/stock_advisor
 ```
-
-Certainly! Here's a concise addition for your README to explain how to use the `docker-compose run --rm -it stock_advisor` command:
-
 ---
 
 ### Running with Docker Compose
@@ -145,7 +142,7 @@ stock_advisor/
 
 `main.py`: The entry point of the program.
 
-## Contributng
+## Contributing
 Contributions to improve and extend this simple stock advisor project are welcome. If you have ideas, bug fixes, or improvements, feel free to submit a pull request.
 
 ## Disclaimer
