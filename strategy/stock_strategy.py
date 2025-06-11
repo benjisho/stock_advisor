@@ -22,12 +22,14 @@ def recommend_action(data, predicted_price):
     last_closing_price = float(data['Close'].iloc[-1])
 
     # Comparison
-    if (predicted_price > last_closing_price and 
-        data['SMA_20'].iloc[-1] > data['SMA_50'].iloc[-1] and 
-        data['EMA_12'].iloc[-1] > data['EMA_26'].iloc[-1] and 
-        data['MACD'].iloc[-1] > data['MACD_Signal'].iloc[-1] and
-        data['OBV'].iloc[-1] > data['OBV'].iloc[-2]):
-        data['ATR'].iloc[-1] > data['ATR'].iloc[-2]
+    if (
+        predicted_price > last_closing_price
+        and data["SMA_20"].iloc[-1] > data["SMA_50"].iloc[-1]
+        and data["EMA_12"].iloc[-1] > data["EMA_26"].iloc[-1]
+        and data["MACD"].iloc[-1] > data["MACD_Signal"].iloc[-1]
+        and data["OBV"].iloc[-1] > data["OBV"].iloc[-2]
+        and data["ATR"].iloc[-1] > data["ATR"].iloc[-2]
+    ):
         return "Buy"
     else:
         return "Short"
