@@ -71,6 +71,9 @@ docker-compose run --rm stock_advisor
 ```
 
 This command runs the application in an interactive mode and cleans up the container after the application finishes.
+
+---
+
 ### Running Manually
 #### 1. Clone repository to your local machine
 ```bash
