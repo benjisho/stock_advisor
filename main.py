@@ -1,6 +1,4 @@
 import pandas as pd
-import requests
-from sklearn.metrics import mean_squared_error
 import numpy as np
 
 # Fetch historical stock price data based on the user's input
