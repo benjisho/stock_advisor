@@ -7,6 +7,14 @@ import numpy as np
 import yfinance as yf
 from pandas_datareader import data as web
 
+
+def process_data(data: pd.DataFrame) -> pd.DataFrame:
+    """Sort by date so the last row reflects the latest close."""
+    data.reset_index(inplace=True)
+    data.sort_values("Date", inplace=True)
+    data.reset_index(drop=True, inplace=True)
+    return data
+
 def get_historical_data(symbol):
     """Fetch historical stock data and return the DataFrame and data source."""
     print(f"Fetching historical data for {symbol}...")
@@ -22,9 +30,7 @@ def get_historical_data(symbol):
             data_source = "Yahoo Finance"
             print(f"Successfully fetched historical data for {symbol} from {data_source}")
             print("----------------------------------------------------------------")
-            data.reset_index(inplace=True)
-            data.sort_values("Date", inplace=True)
-            data.reset_index(drop=True, inplace=True)
+            data = process_data(data)
             return data, data_source
         else:
             print("No data returned from Yahoo Finance. Trying Stooq...")
@@ -38,9 +44,7 @@ def get_historical_data(symbol):
             data_source = "Stooq"
             print(f"Successfully fetched historical data for {symbol} from {data_source}")
             print("----------------------------------------------------------------")
-            data.reset_index(inplace=True)
-            data.sort_values("Date", inplace=True)
-            data.reset_index(drop=True, inplace=True)
+            data = process_data(data)
             return data, data_source
     except Exception as e:
         print(f"Stooq retrieval failed: {e}")
