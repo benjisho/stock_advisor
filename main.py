@@ -3,39 +3,67 @@ import requests
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
-# Function to fetch historical stock price data based on the user's input
+# Fetch historical stock price data based on the user's input
 import yfinance as yf
+from pandas_datareader import data as web
+
+
+def process_data(data: pd.DataFrame) -> pd.DataFrame:
+    """Sort by date so the last row reflects the latest close."""
+    data.reset_index(inplace=True)
+    data.sort_values("Date", inplace=True)
+    data.reset_index(drop=True, inplace=True)
+    return data
 
 def get_historical_data(symbol):
-    try:
-        print(f"Fetching historical data for {symbol}...")
-        print("----------------------------------------------------------------")
-        stock = yf.Ticker(symbol)
-        # data including 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'
-        
-        data = stock.history(period="max")  # Fetches the maximum available historical data
+    """Fetch historical stock data and return the DataFrame and data source."""
+    print(f"Fetching historical data for {symbol}...")
+    print("----------------------------------------------------------------")
 
-        # Check if the data is empty
-        if data.empty:
-            print(f"Historical data for {symbol} not found.")
-            return None
-        else:
-            print(f"Successfully fetched historical data for {symbol}")
+    data_source = None
+
+    # First try Yahoo Finance via yfinance
+    try:
+        stock = yf.Ticker(symbol)
+        data = stock.history(period="max")
+        if not data.empty:
+            data_source = "Yahoo Finance"
+            print(f"Successfully fetched historical data for {symbol} from {data_source}")
             print("----------------------------------------------------------------")
-            data.reset_index(inplace=True)  # Reset the index to make 'Date' a column
-            return data
+            data = process_data(data)
+            return data, data_source
+        else:
+            print("No data returned from Yahoo Finance. Trying Stooq...")
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        return None
+        print(f"Yahoo Finance retrieval failed: {e}. Trying Stooq...")
+
+    # Fallback to Stooq using pandas_datareader
+    try:
+        data = web.DataReader(symbol, 'stooq')
+        if not data.empty:
+            data_source = "Stooq"
+            print(f"Successfully fetched historical data for {symbol} from {data_source}")
+            print("----------------------------------------------------------------")
+            data = process_data(data)
+            return data, data_source
+    except Exception as e:
+        print(f"Stooq retrieval failed: {e}")
+
+    print(f"Historical data for {symbol} not found.")
+    return None, data_source
 # Ask the user for a stock symbol
 user_symbol = input("Enter the stock symbol (e.g., AAPL): ").upper()
 print("----------------------------------------------------------------")
 
 # Fetch historical data for the user-provided symbol
-data = get_historical_data(user_symbol)
+data, data_source = get_historical_data(user_symbol)
 
 if data is not None:
-    # Import the necessary libraries
+    # Display the latest close price and data source
+    current_price = round(float(data['Close'].iloc[-1]), 2)
+    print(f"Current price from {data_source}: {current_price}")
+    print("----------------------------------------------------------------")
+
     # Prepare the data for machine learning
     data['Date_Num'] = (data['Date'] - data['Date'].min()).dt.days  # Convert date to numerical format
     X = data[['Date_Num']].values
