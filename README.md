@@ -568,6 +568,7 @@ stock_advisor/
 ### Directory Organization
 
 - **`.github/workflows/`**: CI/CD pipelines for automated testing and deployment
+- **`docs/`**: Detailed documentation including test results and technical specifications
 - **`indicators/`**: Contains code for technical indicators and market analysis
 - **`strategy/`**: Includes the main stock strategy logic and recommendation engine
 - **`tests/`**: Comprehensive pytest test suite organized by test type:
