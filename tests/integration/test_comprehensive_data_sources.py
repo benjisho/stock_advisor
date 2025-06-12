@@ -41,7 +41,6 @@ class TestDataSourceFallback:
     
     @pytest.mark.integration
     @pytest.mark.slow
-    @pytest.mark.stooq
     def test_stooq_fallback(self):
         """Test Stooq as first fallback."""
         try:
@@ -57,7 +56,6 @@ class TestDataSourceFallback:
     
     @pytest.mark.integration
     @pytest.mark.slow  
-    @pytest.mark.finance_data_reader
     def test_finance_data_reader_fallback(self):
         """Test FinanceDataReader as second fallback."""
         try:
@@ -81,7 +79,6 @@ class TestDataSourceFallback:
     
     @pytest.mark.integration
     @pytest.mark.slow
-    @pytest.mark.investpy
     def test_investpy_final_fallback(self):
         """Test InvestPy as final fallback."""
         try:
@@ -108,7 +105,6 @@ class TestDataSourceFallback:
 class TestDataSourceExactImplementation:
     """Test the exact implementation from main.py"""
     
-    @pytest.mark.finance_data_reader
     @pytest.mark.unit
     def test_exact_fdr_section_implementation(self):
         """Test the exact FinanceDataReader section from main.py lines 52-66"""
@@ -139,7 +135,6 @@ class TestDataSourceExactImplementation:
         else:
             pytest.skip("FinanceDataReader not available or failed")
     
-    @pytest.mark.finance_data_reader
     @pytest.mark.unit
     def test_fdr_error_handling(self):
         """Test error handling in FinanceDataReader section"""
