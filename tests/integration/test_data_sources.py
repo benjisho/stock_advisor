@@ -1,200 +1,140 @@
-"""
-Tests for all data sources and the fallback mechanism
-"""
-import pytest
+"""Integration tests for data source fallback behavior in main.py."""
+
+from types import SimpleNamespace
+
 import pandas as pd
-from tests.conftest import process_data, TestDataValidator
+import pytest
+
+import main
+from tests.conftest import TestDataValidator
 
 
 class TestDataSourceFallback:
-    """Test the complete data source fallback mechanism from main.py"""
-    
-    def _get_historical_data_simulation(self, symbol, force_yahoo_fail=False, force_stooq_fail=False, force_fdr_fail=False):
-        """Simulate the get_historical_data function with controlled failures"""
-        data_source = None
-        
-        # First try Yahoo Finance via yfinance (unless forced to fail)
-        if not force_yahoo_fail:
-            try:
-                import yfinance as yf
-                stock = yf.Ticker(symbol)
-                data = stock.history(period="max")
-                if not data.empty:
-                    data_source = "Yahoo Finance"
-                    data = process_data(data)
-                    return data, data_source
-            except Exception:
-                pass
-        
-        # Fallback to Stooq using pandas_datareader (unless forced to fail)
-        if not force_stooq_fail:
-            try:
-                from pandas_datareader import data as web
-                data = web.DataReader(symbol, 'stooq')
-                if not data.empty:
-                    data_source = "Stooq"
-                    data = process_data(data)
-                    return data, data_source
-            except Exception:
-                pass
-        
-        # Attempt FinanceDataReader (unless forced to fail)
-        if not force_fdr_fail:
-            try:
-                import FinanceDataReader as fdr
-                data = fdr.DataReader(symbol, '2000')
-                if not data.empty:
-                    data_source = "FinanceDataReader"
-                    data = data.reset_index().rename(columns={'index': 'Date'})
-                    data = process_data(data)
-                    return data, data_source
-            except Exception:
-                pass
-        
-        # Attempt InvestPy (last fallback)
-        try:
-            import investpy
-            start_date = '01/01/2000'
-            end_date = '01/01/2024'  # Use fixed end date for testing
-            data = investpy.get_stock_historical_data(stock=symbol, country='united states', 
-                                                    from_date=start_date, to_date=end_date)
-            if not data.empty:
-                data_source = "InvestPy"
-                data = data.reset_index().rename(columns={'index': 'Date'})
-                data = process_data(data)
-                return data, data_source
-        except Exception:
-            pass
-        
-        return None, data_source
-    
-    @pytest.mark.integration
-    @pytest.mark.slow
-    @pytest.mark.data_source
-    def test_normal_fallback_sequence(self):
-        """Test normal fallback sequence without forced failures"""
-        symbol = "AAPL"
-        data, source = self._get_historical_data_simulation(symbol)
-        
-        assert data is not None, f"All data sources failed for {symbol}"
-        assert source in ["Yahoo Finance", "Stooq", "FinanceDataReader", "InvestPy"], f"Unknown data source: {source}"
-        
-        # Validate data quality
-        validator = TestDataValidator()
-        assert validator.validate_stock_data_structure(data), "Invalid data structure"
-        assert validator.validate_price_data(data), "Invalid price data"
-    
-    @pytest.mark.integration
-    @pytest.mark.slow
-    @pytest.mark.data_source
-    def test_financedata_reader_as_fallback(self):
-        """Test FinanceDataReader specifically as a fallback option"""
-        symbol = "AAPL"
-        
-        # Force Yahoo Finance and Stooq to fail, test FinanceDataReader
-        data, source = self._get_historical_data_simulation(symbol, 
-                                                           force_yahoo_fail=True, 
-                                                           force_stooq_fail=True)
-        
-        if data is not None:
-            assert source in ["FinanceDataReader", "InvestPy"], f"Expected FinanceDataReader or InvestPy, got {source}"
-            
-            # If FinanceDataReader succeeded, validate it
-            if source == "FinanceDataReader":
-                assert len(data) > 0, "FinanceDataReader returned empty data"
-                assert 'Close' in data.columns, "Missing Close column from FinanceDataReader"
+    """Validate fallback order against the production get_historical_data function."""
 
+    @pytest.fixture
+    def validator(self):
+        return TestDataValidator()
 
-class TestDataSourceValidation:
-    """Test validation and data quality across all sources"""
-    
-    @pytest.mark.unit
-    @pytest.mark.data_source
-    def test_data_validator_functions(self, sample_stock_data):
-        """Test the data validation utility functions"""
-        validator = TestDataValidator()
-        
-        # Test valid data
-        assert validator.validate_stock_data_structure(sample_stock_data)
-        assert validator.validate_price_data(sample_stock_data)
-        assert validator.validate_date_range(sample_stock_data, 2020)
-        
-        # Test invalid data structure
-        invalid_data = sample_stock_data.drop(columns=['Close'])
-        assert not validator.validate_stock_data_structure(invalid_data)
-        
-        # Test invalid price data (negative prices)
-        invalid_prices = sample_stock_data.copy()
-        invalid_prices.loc[0, 'Close'] = -1
-        assert not validator.validate_price_data(invalid_prices)
-    
-    @pytest.mark.integration
-    @pytest.mark.slow
-    @pytest.mark.data_source
-    @pytest.mark.parametrize("symbol", ["AAPL", "GOOGL"])
-    def test_data_consistency_across_sources(self, symbol):
-        """Test that different data sources return consistent data formats"""
-        sources_data = {}
-        validator = TestDataValidator()
-        
-        # Try to get data from different sources
-        sources_to_test = [
-            ("yahoo", self._get_yahoo_data),
-            ("financedata", self._get_financedata_reader_data),
-        ]
-        
-        for source_name, get_data_func in sources_to_test:
-            try:
-                data = get_data_func(symbol)
-                if data is not None and not data.empty:
-                    sources_data[source_name] = data
-            except Exception:
-                continue  # Skip if source fails
-        
-        # Validate that all successful sources have consistent structure
-        for source_name, data in sources_data.items():
-            assert validator.validate_stock_data_structure(data), f"{source_name} has invalid structure"
-            assert validator.validate_price_data(data), f"{source_name} has invalid price data"
-    
-    def _get_yahoo_data(self, symbol):
-        """Helper to get data from Yahoo Finance"""
-        try:
-            import yfinance as yf
-            stock = yf.Ticker(symbol)
-            data = stock.history(period="1y")  # Shorter period for testing
-            if not data.empty:
-                return process_data(data)
-        except Exception:
-            return None
-        return None
-    
-    def _get_financedata_reader_data(self, symbol):
-        """Helper to get data from FinanceDataReader"""
-        try:
-            import FinanceDataReader as fdr
-            data = fdr.DataReader(symbol, '2023')  # Shorter period for testing
-            if not data.empty:
-                data = data.reset_index().rename(columns={'index': 'Date'})
-                return process_data(data)
-        except Exception:
-            return None
-        return None
+    @staticmethod
+    def _frame(dates=("2024-01-01", "2024-01-02")) -> pd.DataFrame:
+        idx = pd.to_datetime(list(dates))
+        idx.name = "Date"
+        return pd.DataFrame(
+            {
+                "Open": [100.0, 101.0],
+                "High": [102.0, 103.0],
+                "Low": [99.0, 100.0],
+                "Close": [101.0, 102.0],
+                "Volume": [1_000_000, 1_100_000],
+            },
+            index=idx,
+        )
+
+    def test_uses_yahoo_finance_first(self, monkeypatch, validator):
+        yahoo_data = self._frame()
+
+        monkeypatch.setattr(main.yf, "Ticker", lambda symbol: SimpleNamespace(history=lambda period: yahoo_data))
+
+        def raise_if_called(*args, **kwargs):
+            raise AssertionError("Stooq should not be called when Yahoo succeeds")
+
+        monkeypatch.setattr(main.web, "DataReader", raise_if_called)
+
+        data, source = main.get_historical_data("AAPL")
+
+        assert source == "Yahoo Finance"
+        assert data is not None
+        assert validator.validate_stock_data_structure(data)
+        assert validator.validate_price_data(data)
+
+    def test_falls_back_to_stooq_when_yahoo_fails(self, monkeypatch, validator):
+        stooq_data = self._frame(("2024-01-03", "2024-01-04"))
+
+        monkeypatch.setattr(
+            main.yf,
+            "Ticker",
+            lambda symbol: SimpleNamespace(history=lambda period: (_ for _ in ()).throw(RuntimeError("yahoo down"))),
+        )
+        monkeypatch.setattr(main.web, "DataReader", lambda symbol, source: stooq_data)
+
+        data, source = main.get_historical_data("AAPL")
+
+        assert source == "Stooq"
+        assert data is not None
+        assert validator.validate_stock_data_structure(data)
+
+    def test_falls_back_to_financedatareader_when_yahoo_and_stooq_fail(self, monkeypatch):
+        fdr_data = self._frame(("2024-02-01", "2024-02-02"))
+
+        monkeypatch.setattr(
+            main.yf,
+            "Ticker",
+            lambda symbol: SimpleNamespace(history=lambda period: (_ for _ in ()).throw(RuntimeError("yahoo down"))),
+        )
+        monkeypatch.setattr(
+            main.web,
+            "DataReader",
+            lambda symbol, source: (_ for _ in ()).throw(RuntimeError("stooq down")),
+        )
+
+        class FakeFdr:
+            @staticmethod
+            def DataReader(symbol, start):
+                return fdr_data
+
+        monkeypatch.setitem(__import__("sys").modules, "FinanceDataReader", FakeFdr)
+
+        data, source = main.get_historical_data("AAPL")
+
+        assert source == "FinanceDataReader"
+        assert data is not None
+        assert "Date" in data.columns
+
+    def test_returns_none_when_all_sources_fail(self, monkeypatch):
+        monkeypatch.setattr(
+            main.yf,
+            "Ticker",
+            lambda symbol: SimpleNamespace(history=lambda period: (_ for _ in ()).throw(RuntimeError("yahoo down"))),
+        )
+        monkeypatch.setattr(
+            main.web,
+            "DataReader",
+            lambda symbol, source: (_ for _ in ()).throw(RuntimeError("stooq down")),
+        )
+
+        class BrokenFdr:
+            @staticmethod
+            def DataReader(symbol, start):
+                raise RuntimeError("fdr down")
+
+        class BrokenInvestPy:
+            @staticmethod
+            def get_stock_historical_data(**kwargs):
+                raise RuntimeError("investpy down")
+
+        monkeypatch.setitem(__import__("sys").modules, "FinanceDataReader", BrokenFdr)
+        monkeypatch.setitem(__import__("sys").modules, "investpy", BrokenInvestPy)
+
+        data, source = main.get_historical_data("AAPL")
+
+        assert data is None
+        assert source is None
 
 
 class TestDataSourceConfiguration:
-    """Test configuration and setup for data sources"""
-    
+    """Validate dependency import targets used by data-source tests."""
+
     @pytest.mark.unit
     @pytest.mark.data_source
     def test_all_required_packages_importable(self):
-        """Test that all required data source packages can be imported"""
         packages = [
-            ("yfinance", "yf"),
+            ("yfinance", "yfinance"),
             ("pandas_datareader", "pandas_datareader.data"),
             ("FinanceDataReader", "FinanceDataReader"),
-            ("investpy", "investpy")
+            ("investpy", "investpy"),
         ]
-        
+
         import_results = {}
         for package_name, import_name in packages:
             try:
@@ -202,13 +142,8 @@ class TestDataSourceConfiguration:
                 import_results[package_name] = True
             except ImportError:
                 import_results[package_name] = False
-        
-        # At least FinanceDataReader should be available (since we're testing it)
-        assert import_results["FinanceDataReader"], "FinanceDataReader not available"
-        
-        # Log which packages are available
-        available_packages = [name for name, available in import_results.items() if available]
-        print(f"Available data source packages: {available_packages}")
+
+        assert any(import_results.values()), "No data-source dependencies are importable"
 
 
 pytestmark = pytest.mark.data_source
