@@ -1,118 +1,174 @@
-import pandas as pd
-import numpy as np
+from __future__ import annotations
 
-# Fetch historical stock price data based on the user's input
+import time
+from typing import Dict, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 import yfinance as yf
 from pandas_datareader import data as web
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import TimeSeriesSplit
+
+from strategy.stock_strategy import recommend_action
 
 
 def process_data(data: pd.DataFrame) -> pd.DataFrame:
     """Sort by date so the last row reflects the latest close."""
-    data.reset_index(inplace=True)
-    data.sort_values("Date", inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    return data
+    processed = data.reset_index().sort_values("Date").reset_index(drop=True)
+    return processed
 
-def get_historical_data(symbol):
+
+def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
     """Fetch historical stock data and return the DataFrame and data source."""
     print(f"Fetching historical data for {symbol}...")
     print("----------------------------------------------------------------")
-
-    data_source = None
 
     # First try Yahoo Finance via yfinance
     try:
         stock = yf.Ticker(symbol)
         data = stock.history(period="max")
         if not data.empty:
-            data_source = "Yahoo Finance"
-            print(f"Successfully fetched historical data for {symbol} from {data_source}")
+            print(f"Successfully fetched historical data for {symbol} from Yahoo Finance")
             print("----------------------------------------------------------------")
-            data = process_data(data)
-            return data, data_source
-        else:
-            print("No data returned from Yahoo Finance. Trying Stooq...")
-    except Exception as e:
-        print(f"Yahoo Finance retrieval failed: {e}. Trying Stooq...")
+            return process_data(data), "Yahoo Finance"
+
+        print("No data returned from Yahoo Finance. Trying Stooq...")
+    except Exception as exc:
+        print(f"Yahoo Finance retrieval failed: {exc}. Trying Stooq...")
 
     # Fallback to Stooq using pandas_datareader
     try:
-        data = web.DataReader(symbol, 'stooq')
+        data = web.DataReader(symbol, "stooq")
         if not data.empty:
-            data_source = "Stooq"
-            print(f"Successfully fetched historical data for {symbol} from {data_source}")
+            print(f"Successfully fetched historical data for {symbol} from Stooq")
             print("----------------------------------------------------------------")
-            data = process_data(data)
-            return data, data_source
-    except Exception as e:
-        print(f"Stooq retrieval failed: {e}")
+            return process_data(data), "Stooq"
+    except Exception as exc:
+        print(f"Stooq retrieval failed: {exc}")
 
     print(f"Historical data for {symbol} not found.")
-    return None, data_source
-# Ask the user for a stock symbol
-user_symbol = input("Enter the stock symbol (e.g., AAPL): ").upper()
-print("----------------------------------------------------------------")
+    return None, None
 
-# Fetch historical data for the user-provided symbol
-data, data_source = get_historical_data(user_symbol)
 
-if data is not None:
-    # Display the latest close price and data source
-    current_price = round(float(data['Close'].iloc[-1]), 2)
+def build_features(data: pd.DataFrame) -> pd.DataFrame:
+    """Create time-based numeric feature used by the baseline regression model."""
+    features = data.copy()
+    features["Date_Num"] = (features["Date"] - features["Date"].min()).dt.days
+    return features
+
+
+def validate_training_data(data: pd.DataFrame, min_rows: int = 30) -> None:
+    """Validate minimum history required for model training."""
+    if len(data) < min_rows:
+        raise ValueError(
+            f"Not enough historical rows for forecasting. Found {len(data)}, need at least {min_rows}."
+        )
+
+
+def train_forecasting_model(data: pd.DataFrame, n_splits: int = 5) -> Tuple[LinearRegression, float]:
+    """Train baseline linear regression with time-series-aware cross validation."""
+    validate_training_data(data)
+    features = build_features(data)
+    X = features[["Date_Num"]].values
+    y = features["Close"].values
+
+    # TimeSeriesSplit preserves chronological order and avoids leakage.
+    split_count = max(2, min(n_splits, len(features) - 1))
+    tscv = TimeSeriesSplit(n_splits=split_count)
+
+    scores = []
+    for train_idx, test_idx in tscv.split(X):
+        fold_model = LinearRegression()
+        fold_model.fit(X[train_idx], y[train_idx])
+        scores.append(fold_model.score(X[test_idx], y[test_idx]))
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    return model, float(np.mean(scores)) if scores else float("nan")
+
+
+def predict_future_prices(model: LinearRegression, data: pd.DataFrame) -> Dict[str, float]:
+    """Predict price for tomorrow, next week, and next month."""
+    max_day = int(data["Date_Num"].max())
+    day_offsets = {
+        "tomorrow": max_day + 1,
+        "next_week": max_day + 7,
+        "next_month": max_day + 30,
+    }
+    predictions = {
+        label: round(float(model.predict(np.array([[day]]))[0]), 2)
+        for label, day in day_offsets.items()
+    }
+    return predictions
+
+
+def run_advisor_for_symbol(symbol: str) -> Optional[Dict[str, object]]:
+    """Run the stock advisor flow for one symbol and return structured output."""
+    data, data_source = get_historical_data(symbol)
+    if data is None or data_source is None:
+        return None
+
+    current_price = round(float(data["Close"].iloc[-1]), 2)
     print(f"Current price from {data_source}: {current_price}")
     print("----------------------------------------------------------------")
 
-    # Prepare the data for machine learning
-    data['Date_Num'] = (data['Date'] - data['Date'].min()).dt.days  # Convert date to numerical format
-    X = data[['Date_Num']].values
-    y = data['Close'].values
-    
-    from sklearn.model_selection import train_test_split
-
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    from sklearn.linear_model import LinearRegression
-
-    # Train a Linear Regression model
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    
-    # Predict stock prices for tomorrow, next week, and next month
-    tomorrow_date = data['Date_Num'].max() + 1
-    next_week_date = data['Date_Num'].max() + 7
-    next_month_date = data['Date_Num'].max() + 30
-    
-    price_tomorrow = round(model.predict(np.array([[tomorrow_date]]))[0], 2)
-    price_next_week = round(model.predict(np.array([[next_week_date]]))[0], 2)
-    price_next_month = round(model.predict(np.array([[next_month_date]]))[0], 2)
-    
-    from strategy.stock_strategy import recommend_action
-
-    # Calculate the recommendation for tomorrow, next week, and next month
-    action_tomorrow = recommend_action(data, price_tomorrow)
-    action_week = recommend_action(data, price_next_week)
-    action_next_month = recommend_action(data, price_next_month)
-    
-    import time
-
-    time.sleep(1)
-
-    # Output the recommendations for tomorrow
-    print(f"Price prediction for tomorrow: {price_tomorrow}")
-    print(f"Recommendation for {user_symbol} for tomorrow: {action_tomorrow}")
+    data = build_features(data)
+    model, cv_score = train_forecasting_model(data)
+    print(f"TimeSeries CV R^2 (mean): {round(cv_score, 4)}")
     print("----------------------------------------------------------------")
-    time.sleep(1)
 
-    # Output the recommendations for next week
-    print(f"Price prediction for next week: {price_next_week}")
-    print(f"Recommendation for {user_symbol} for the next week: {action_week}")
+    predictions = predict_future_prices(model, data)
+    recommendations = {
+        "tomorrow": recommend_action(data.copy(), predictions["tomorrow"]),
+        "next_week": recommend_action(data.copy(), predictions["next_week"]),
+        "next_month": recommend_action(data.copy(), predictions["next_month"]),
+    }
+
+    return {
+        "symbol": symbol,
+        "data_source": data_source,
+        "current_price": current_price,
+        "predictions": predictions,
+        "recommendations": recommendations,
+    }
+
+
+def print_report(result: Dict[str, object]) -> None:
+    symbol = str(result["symbol"])
+    predictions = result["predictions"]
+    recommendations = result["recommendations"]
+
+    time.sleep(1)
+    print(f"Price prediction for tomorrow: {predictions['tomorrow']}")
+    print(f"Recommendation for {symbol} for tomorrow: {recommendations['tomorrow']}")
     print("----------------------------------------------------------------")
-    time.sleep(1)
 
-    # Output the recommendations for next month
-    print(f"Price prediction for next month: {price_next_month}")
-    print(f"Recommendation for {user_symbol} for the next month: {action_next_month}")
+    time.sleep(1)
+    print(f"Price prediction for next week: {predictions['next_week']}")
+    print(f"Recommendation for {symbol} for the next week: {recommendations['next_week']}")
     print("----------------------------------------------------------------")
-    time.sleep(1)
 
+    time.sleep(1)
+    print(f"Price prediction for next month: {predictions['next_month']}")
+    print(f"Recommendation for {symbol} for the next month: {recommendations['next_month']}")
+    print("----------------------------------------------------------------")
+
+
+def main() -> None:
+    user_symbol = input("Enter the stock symbol (e.g., AAPL): ").upper()
+    print("----------------------------------------------------------------")
+
+    try:
+        result = run_advisor_for_symbol(user_symbol)
+    except ValueError as exc:
+        print(exc)
+        return
+
+    if result is not None:
+        print_report(result)
+
+
+if __name__ == "__main__":
+    main()
