@@ -164,10 +164,18 @@ class TestIndicatorPerformance:
             'Volume': np.random.randint(100000, 2000000, 10000)
         })
         
+        import time
+        start_time = time.time()
+
         # Test that indicators can handle large datasets
         sma = simple_moving_average(large_data, window=50)
         ema = exponential_moving_average(large_data, span=20)
         rsi = relative_strength_index(large_data, window=14)
+
+        end_time = time.time()
+        elapsed = end_time - start_time
+        print(f"Indicator computation time for 10k rows: {elapsed:.4f}s")
+
         assert len(sma) == 10000, "SMA should handle large datasets"
         assert len(ema) == 10000, "EMA should handle large datasets"
         assert len(rsi) == 10000, "RSI should handle large datasets"
