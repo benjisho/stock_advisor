@@ -16,10 +16,9 @@ from strategy.stock_strategy import recommend_action
 
 def process_data(data: pd.DataFrame) -> pd.DataFrame:
     """Sort by date so the last row reflects the latest close."""
-    data.reset_index(inplace=True)
-    data.sort_values("Date", inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    return data
+    processed = data.reset_index().sort_values("Date").reset_index(drop=True)
+    return processed
+
 
 
 def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
@@ -35,6 +34,7 @@ def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[s
             print(f"Successfully fetched historical data for {symbol} from Yahoo Finance")
             print("----------------------------------------------------------------")
             return process_data(data), "Yahoo Finance"
+
         print("No data returned from Yahoo Finance. Trying Stooq...")
     except Exception as exc:
         print(f"Yahoo Finance retrieval failed: {exc}. Trying Stooq...")
