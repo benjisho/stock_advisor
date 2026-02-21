@@ -10,12 +10,7 @@ import os
 # Add the parent directory to the path to import main functions
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-def process_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Sort by date so the last row reflects the latest close."""
-    data.reset_index(inplace=True)
-    data.sort_values("Date", inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    return data
+from main import process_data
 
 
 @pytest.fixture

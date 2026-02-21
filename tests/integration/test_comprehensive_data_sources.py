@@ -13,12 +13,7 @@ import os
 # Add the parent directory to the path to import main functions
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-def process_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Sort by date so the last row reflects the latest close."""
-    data.reset_index(inplace=True)
-    data.sort_values("Date", inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    return data
+from main import process_data
 
 class TestDataSourceFallback:
     """Test the data source fallback mechanism from main.py"""
@@ -105,7 +100,8 @@ class TestDataSourceFallback:
 class TestDataSourceExactImplementation:
     """Test the exact implementation from main.py"""
     
-    @pytest.mark.unit
+    @pytest.mark.integration
+    @pytest.mark.slow
     def test_exact_fdr_section_implementation(self):
         """Test the exact FinanceDataReader section from main.py lines 52-66"""
         
@@ -135,7 +131,8 @@ class TestDataSourceExactImplementation:
         else:
             pytest.skip("FinanceDataReader not available or failed")
     
-    @pytest.mark.unit
+    @pytest.mark.integration
+    @pytest.mark.slow
     def test_fdr_error_handling(self):
         """Test error handling in FinanceDataReader section"""
         
