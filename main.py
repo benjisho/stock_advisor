@@ -1,8 +1,13 @@
+from __future__ import annotations
+
+from datetime import date
+import time
+from typing import Optional, Tuple
+
+import numpy as np
 import pandas as pd
 import requests
 from sklearn.metrics import mean_squared_error
-import numpy as np
-from datetime import date
 
 # Fetch historical stock price data based on the user's input
 import yfinance as yf
@@ -16,7 +21,7 @@ def process_data(data: pd.DataFrame) -> pd.DataFrame:
     data.reset_index(drop=True, inplace=True)
     return data
 
-def get_historical_data(symbol):
+def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
     """Fetch historical stock data and return the DataFrame and data source."""
     print(f"Fetching historical data for {symbol}...")
     print("----------------------------------------------------------------")
@@ -127,8 +132,6 @@ def run_cli() -> None:
         action_tomorrow = recommend_action(data, price_tomorrow)
         action_week = recommend_action(data, price_next_week)
         action_next_month = recommend_action(data, price_next_month)
-
-        import time
 
         time.sleep(1)
 
