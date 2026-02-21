@@ -108,6 +108,7 @@ def train_forecasting_model(data: pd.DataFrame, n_splits: int = 5) -> Tuple[Line
     X = features[["Date_Num"]].values
     y = features["Close"].values
 
+    # TimeSeriesSplit preserves chronological order and avoids leakage.
     split_count = max(2, min(n_splits, len(features) - 1))
     tscv = TimeSeriesSplit(n_splits=split_count)
 
@@ -131,10 +132,11 @@ def predict_future_prices(model: LinearRegression, data: pd.DataFrame) -> Dict[s
         "next_week": max_day + 7,
         "next_month": max_day + 30,
     }
-    return {
+    predictions = {
         label: round(float(model.predict(np.array([[day]]))[0]), 2)
         for label, day in day_offsets.items()
     }
+    return predictions
 
 
 def run_advisor_for_symbol(symbol: str) -> Optional[Dict[str, object]]:
