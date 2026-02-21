@@ -181,8 +181,16 @@ class TestDataProcessingEdgeCases:
         
         # Shuffle to make unsorted
         large_data = large_data.sample(frac=1)
-        
+
+        import time
+        start_time = time.time()
+
         processed = process_data(large_data.copy())
+
+        end_time = time.time()
+
+        # Should complete within reasonable time (2 seconds)
+        assert (end_time - start_time) < 2, "Should handle large datasets efficiently"
         assert len(processed) == 10000, "All data should be preserved"
         
         # Check sorting
