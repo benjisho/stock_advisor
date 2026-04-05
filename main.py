@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 import time
 from typing import Dict, Optional, Tuple
 
@@ -17,6 +18,7 @@ def process_data(data: pd.DataFrame) -> pd.DataFrame:
     """Sort by date so the last row reflects the latest close."""
     processed = data.reset_index().sort_values("Date").reset_index(drop=True)
     return processed
+
 
 
 def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[str]]:
@@ -45,7 +47,40 @@ def get_historical_data(symbol: str) -> Tuple[Optional[pd.DataFrame], Optional[s
             print("----------------------------------------------------------------")
             return process_data(data), "Stooq"
     except Exception as exc:
-        print(f"Stooq retrieval failed: {exc}")
+        print(f"Stooq retrieval failed: {exc}. Trying FinanceDataReader...")
+
+    # Attempt FinanceDataReader
+    try:
+        import FinanceDataReader as fdr
+
+        data = fdr.DataReader(symbol, "2000")
+        if not data.empty:
+            data = data.reset_index().rename(columns={"index": "Date"})
+            print(f"Successfully fetched historical data for {symbol} from FinanceDataReader")
+            print("----------------------------------------------------------------")
+            return process_data(data), "FinanceDataReader"
+    except Exception as exc:
+        print(f"FinanceDataReader retrieval failed: {exc}. Trying InvestPy...")
+
+    # Attempt InvestPy
+    try:
+        import investpy
+
+        start_date = "01/01/2000"
+        end_date = date.today().strftime("%d/%m/%Y")
+        data = investpy.get_stock_historical_data(
+            stock=symbol,
+            country="united states",
+            from_date=start_date,
+            to_date=end_date,
+        )
+        if not data.empty:
+            data = data.reset_index().rename(columns={"index": "Date"})
+            print(f"Successfully fetched historical data for {symbol} from InvestPy")
+            print("----------------------------------------------------------------")
+            return process_data(data), "InvestPy"
+    except Exception as exc:
+        print(f"InvestPy retrieval failed: {exc}")
 
     print(f"Historical data for {symbol} not found.")
     return None, None
@@ -114,12 +149,12 @@ def run_advisor_for_symbol(symbol: str) -> Optional[Dict[str, object]]:
     print(f"Current price from {data_source}: {current_price}")
     print("----------------------------------------------------------------")
 
-    data = build_features(data)
-    model, cv_score = train_forecasting_model(data)
+    data_with_features = build_features(data)
+    model, cv_score = train_forecasting_model(data_with_features)
     print(f"TimeSeries CV R^2 (mean): {round(cv_score, 4)}")
     print("----------------------------------------------------------------")
 
-    predictions = predict_future_prices(model, data)
+    predictions = predict_future_prices(model, data_with_features)
     recommendations = {
         "tomorrow": recommend_action(data.copy(), predictions["tomorrow"]),
         "next_week": recommend_action(data.copy(), predictions["next_week"]),
@@ -136,6 +171,7 @@ def run_advisor_for_symbol(symbol: str) -> Optional[Dict[str, object]]:
 
 
 def print_report(result: Dict[str, object]) -> None:
+    """Print a human-readable report for advisor output."""
     symbol = str(result["symbol"])
     predictions = result["predictions"]
     recommendations = result["recommendations"]
@@ -157,6 +193,7 @@ def print_report(result: Dict[str, object]) -> None:
 
 
 def main() -> None:
+    """Run CLI entrypoint."""
     user_symbol = input("Enter the stock symbol (e.g., AAPL): ").upper()
     print("----------------------------------------------------------------")
 
