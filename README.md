@@ -145,6 +145,14 @@ stock_advisor/
 ## Contributing
 Contributions to improve and extend this simple stock advisor project are welcome. If you have ideas, bug fixes, or improvements, feel free to submit a pull request.
 
+Before opening a pull request, install and run pre-commit checks locally:
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
 ## Disclaimer
 This stock advisor is for educational purposes only and should not be used for real investment decisions. It does not guarantee any financial success, and the author is not responsible for any losses incurred while using this program.
 
