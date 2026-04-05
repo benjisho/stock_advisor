@@ -13,3 +13,10 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "deps"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+
